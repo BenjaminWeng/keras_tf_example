@@ -46,17 +46,27 @@ print(model.summary())
 
 # load trained model?
 try:
-    model.load_weights("SaveModel/cifarCnnModelnew1.h5")
-    print("load successfully, continue training...")
+    model.load_model("SaveModel/cifarCnnModelnew.h5")
+    print("load successfully, will not do training...")
 except :    
     print("load model failed, start training new model...")
-
-# training model
-model.compile(loss='categorical_crossentropy',
+    # training model
+    model.compile(loss='categorical_crossentropy',
               optimizer='adam', metrics=['accuracy'])
-train_history=model.fit(x_img_train_normalize, y_label_train_OneHot,
+    train_history=model.fit(x_img_train_normalize, y_label_train_OneHot,
                         validation_split=0.2,
-                        epochs=10, batch_size=128, verbose=1)          
+                        epochs=1, batch_size=128, verbose=1)          
+    # Save whole model to h5 
+    model.save("SaveModel/cifarCnnModelnew.h5")
+    print("Saved model to disk")
+    # Save model to JSON
+    model_json = model.to_json()
+    with open("SaveModel/cifarCnnModelnew.json", "w") as json_file:
+        json_file.write(model_json)
+    # Save Model to YAML
+    model_yaml = model.to_yaml()
+    with open("SaveModel/cifarCnnModelnew.yaml", "w") as yaml_file:
+        yaml_file.write(model_yaml)
 
 import matplotlib.pyplot as plt
 def show_train_history(train_acc,test_acc):
@@ -74,7 +84,7 @@ show_train_history('loss','val_loss')
 # estimate the accuracy of the model.
 scores = model.evaluate(x_img_test_normalize, 
                         y_label_test_OneHot, verbose=0)
-scores[1]
+print("score[1] = %d.\n",scores[1])
 # estimating.
 prediction=model.predict_classes(x_img_test_normalize)
 prediction[:10]
@@ -134,17 +144,4 @@ pd.crosstab(y_label_test.reshape(-1),prediction,
             rownames=['label'],colnames=['predict'])
 print(label_dict)
 
-# # Save model to JSON
-model_json = model.to_json()
-with open("SaveModel/cifarCnnModelnew.json", "w") as json_file:
-    json_file.write(model_json)
-
-# # Save Model to YAML
-model_yaml = model.to_yaml()
-with open("SaveModel/cifarCnnModelnew.yaml", "w") as yaml_file:
-    yaml_file.write(model_yaml)
-
-# # Save Weight to h5 
-model.save_weights("SaveModel/cifarCnnModelnew.h5")
-print("Saved model to disk")
 
